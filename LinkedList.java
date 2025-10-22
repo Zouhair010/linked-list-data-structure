@@ -38,38 +38,69 @@ public class LinkedList {
         private Node rearNode;
 
 		/**
+		 * Constructs a new DynamicLinkedList and initializes it with the provided objects.
+		 * The objects are appended to the list in the order they are given.
+		 * @param objects A variable number of objects to be added to the list upon creation.
+		 */
+		public DynamicLinkedList(Object... objects){
+			for (Object object : objects){
+				append(object);
+			}
+		}
+
+		/**
+		 * Counts the occurrences of a specific object in the list.
+		 * It uses a two-pointer approach, traversing from both head and tail towards the center.
+		 * This allows checking two nodes per iteration.
+		 * @param object The object to count in the list.
+		 * @return The number of times the object appears in the list.
+		 */
+		public int count(Object object){
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			int counter = 0;
+			while (startIndex<=endIndex && start!=null && end!=null){
+				// Check the node from the start
+				if (start.data.equals(object)){
+					counter++;
+				}
+				// Check the node from the end, avoiding double-counting the middle element
+				if (end.data.equals(object) && end!=start){
+					counter++;
+				}
+				start = start.next;
+				end = end.prev;
+				// Move indices towards the center
+				startIndex++;
+				endIndex--;
+			}
+			return counter;
+		}
+		/**
 		 * Finds the node with the maximum value in the list based on the data's hash code.
 		 * It uses a two-pointer approach, traversing from both head and tail.
 		 * @return The {@code Node} containing the maximum value. Returns {@code head} if the list is empty or has one element.
 		 */
         public Node maxVlueNode(){
-			// Initialize two pointers: one at the head (start) and one at the tail (end).
-			Node currNodeHead = head;
-			Node currNodeTail = tail;
             Node maxValNode = head;
-			while (currNodeHead!=null && currNodeTail!=null){
-				// Termination condition: pointers have met (for odd-length lists) or are adjacent (for even-length lists).
-				if (currNodeHead==currNodeTail || currNodeHead.next==currNodeTail){
-					// Final check at the meeting point.
-					if(currNodeHead.data.hashCode() > maxValNode.data.hashCode()){
-						maxValNode = currNodeHead;
-					}
-					else if (currNodeTail.data.hashCode() > maxValNode.data.hashCode()){
-						maxValNode = currNodeTail;
-					}
-					// If not found at the meeting point, the object is not in the list.
-					break;
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex && start!=null && end!=null){
+				if (start.data.hashCode() > maxValNode.data.hashCode()){
+					maxValNode = start;
 				}
-				// Check if the data at the current head-side or tail-side pointer matches.
-				else if (currNodeHead.data.hashCode() > maxValNode.data.hashCode()){
-					maxValNode = currNodeHead;
-				}
-				else if (currNodeTail.data.hashCode() > maxValNode.data.hashCode()){
-					maxValNode = currNodeTail;
+			    if (end.data.hashCode() > maxValNode.data.hashCode()){
+					maxValNode = end;
 				}
 				// If no match is found, move the pointers one step closer to the center.
-				currNodeHead = currNodeHead.next;
-				currNodeTail = currNodeTail.prev;
+				start = start.next;
+				end = end.prev;
+				startIndex++;
+				endIndex--;
             }
             return maxValNode;
         }
@@ -79,33 +110,23 @@ public class LinkedList {
 		 * @return The {@code Node} containing the minimum value. Returns {@code head} if the list is empty or has one element.
 		 */
 		public Node minVlueNode(){
-			// Initialize two pointers: one at the head (start) and one at the tail (end).
-			Node currNodeHead = head;
-			Node currNodeTail = tail;
             Node minValNode = head;
-			while (currNodeHead!=null && currNodeTail!=null){
-				// Termination condition: pointers have met (for odd-length lists) or are adjacent (for even-length lists).
-				if (currNodeHead==currNodeTail || currNodeHead.next==currNodeTail){
-					// Final check at the meeting point.
-					if(currNodeHead.data.hashCode() < minValNode.data.hashCode()){
-						minValNode = currNodeHead;
-					}
-					else if (currNodeTail.data.hashCode() < minValNode.data.hashCode()){
-						minValNode = currNodeTail;
-					}
-					// If not found at the meeting point, the object is not in the list.
-					break;
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex && start!=null && end!=null){
+				if (start.data.hashCode() < minValNode.data.hashCode()){
+					minValNode = start;
 				}
-				// Check if the data at the current head-side or tail-side pointer matches.
-				else if (currNodeHead.data.hashCode() < minValNode.data.hashCode()){
-					minValNode = currNodeHead;
-				}
-				else if (currNodeTail.data.hashCode() < minValNode.data.hashCode()){
-					minValNode = currNodeTail;
+			    if (end.data.hashCode() < minValNode.data.hashCode()){
+					minValNode = end;
 				}
 				// If no match is found, move the pointers one step closer to the center.
-				currNodeHead = currNodeHead.next;
-				currNodeTail = currNodeTail.prev;
+				start = start.next;
+				end = end.prev;
+				startIndex++;
+				endIndex--;
             }
             return minValNode;
 		}
@@ -116,24 +137,24 @@ public class LinkedList {
 		 * The original list is then replaced by the new sorted list.
 		 */
 		public void sort(){
-			Node headNode = null;
-			Node tailNode = null;
+			Node start = null;
+			Node end = null;
 			for (int i=0 ; i<length ; i++){
 				Node maxValNode = maxVlueNode(); // Finds the current maximum value node
 				removeByReferance(maxValNode);
 				Node newNode = new Node(maxValNode.data);
-	            if (headNode==null){
-	                headNode = newNode;
-	                tailNode = headNode;
+	            if (start==null){
+	                start = newNode;
+	                end = start;
 	            }
 				else{
-    	            newNode.prev = tailNode;
-                    tailNode.next = newNode;
-			        tailNode = newNode;
+    	            newNode.prev = end;
+                    end.next = newNode;
+			        end = newNode;
 				}
 			}
-			head = headNode; // Replace the old list with the new sorted list
-			tail = tailNode;
+			head = start; // Replace the old list with the new sorted list
+			tail = end;
 		}
 		/**
 		 * Appends a new node with the given object to the end of the list.
@@ -164,73 +185,122 @@ public class LinkedList {
 				System.out.println("the index out of range!");
 				return;
 			}
-			Node currHeadNode = head;
-			Node currTailNode = tail;
+			Node start = head;
+			Node end = tail;
 			// Handle insertion at the beginning of the list
 			if (index==0){
-				newNode.next=currHeadNode;
-				currHeadNode.prev = newNode;
+				newNode.next=start;
+				start.prev = newNode;
 				head = newNode;
-			}
+			}		
 			else{
-				currHeadNode = currHeadNode.next;
+				start = start.next;
 				// Use two pointers to find the insertion point faster
-				int tailIndex;
-				for (int headIndex=1 ; headIndex<length ; headIndex++) {
-				    tailIndex = length-headIndex;
+				int endIndex;
+				for (int startIndex=1 ; startIndex<length ; startIndex++) {
+				    endIndex = length-startIndex;
 					// If the index is closer to the head
-				    if (headIndex==index) {
-					    newNode.next = currHeadNode;
-					    newNode.prev = currHeadNode.prev;
-					    currHeadNode.prev.next = newNode;
-						currHeadNode.prev = newNode;
+				    if (startIndex==index) {
+					    newNode.next = start;
+					    newNode.prev = start.prev;
+					    start.prev.next = newNode;
+						start.prev = newNode;
 					    break;
 				    }
-				    else if (tailIndex==index){
-					    newNode.next = currTailNode;
-					    newNode.prev = currTailNode.prev;
-					    currTailNode.prev.next = newNode;
-						currTailNode.prev = newNode;
+				    else if (endIndex==index){
+					    newNode.next = end;
+					    newNode.prev = end.prev;
+					    end.prev.next = newNode;
+						end.prev = newNode;
 					    break;
 				    }
-				    currHeadNode = currHeadNode.next;
-				    currTailNode = currTailNode.prev;
+				    start = start.next;
+				    end = end.prev;
 	    		}
 			}
 			length++;
+		}
+		/**
+		 * Removes and returns the element at the specified index.
+		 * It uses a two-pointer approach to find the node at the index efficiently,
+		 * starting from both the head and the tail.
+		 * @param index The index of the element to be removed.
+		 * @return The data of the removed node, or {@code null} if the index is out of range.
+		 */
+		public Object pop(int index){
+			if (index>=length || index<0){
+				System.out.println("the index out of range!");
+				return null;
+			}
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex){
+				if (startIndex==index) {
+					// Found the node from the start
+				    removeByReferance(start);
+					length--;
+				    return start.data;
+			    }
+			    else if (endIndex==index){
+					// Found the node from the end
+				    removeByReferance(end);
+					length--;
+				    return end.data;
+			    }
+			    start = start.next;
+			    end = end.prev;
+				startIndex++;
+				endIndex--;
+	    	}
+			return null;
+		}
+		/**
+		 * Updates the data of the node at a specific index with a new value.
+		 * It uses a two-pointer approach to find the node efficiently.
+		 * @param index The index of the node to update.
+		 * @param value The new value to be stored in the node.
+		 */
+		public void update(int index, Object value){
+			if (index>=length || index<0){
+				System.out.println("the index out of range!");
+				return;
+			}
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex){
+				if (startIndex==index) {
+					// Found the node from the start
+				    start.data = value;
+				    return ;
+			    }
+			    else if (endIndex==index){
+					// Found the node from the end
+				    end.data = value;
+				    return;
+			    }
+			    start = start.next;
+			    end = end.prev;
+				startIndex++;
+				endIndex--;
+	    	}
 		}
 		/**
 		 * Removes the first occurrence of a node with the given value.
 		 * @param object The value of the node to be removed.
 		 */
 		public void removeByValue(Object object){
-			Node nodeToDelete = search(object);
+			Node nodeToDelete = find(object);
+			// This fallback is reached if the list is empty or if the loop completes unexpectedly.
+			// return null;
 			if (nodeToDelete==null){
 				System.out.println(object+" not on the list!");
 				return;
 			}
-			if (nodeToDelete==tail || nodeToDelete==head){
-				// If the node to delete is the tail (and not also the head)
-				if (nodeToDelete!=head){
-					nodeToDelete.prev.next = null;
-					nodeToDelete = nodeToDelete.prev;
-					tail = nodeToDelete;
-				}
-				// If the node to delete is the head (and not also the tail)
-				else if (nodeToDelete!=tail){
-					nodeToDelete.next.prev = null;
-					nodeToDelete = nodeToDelete.next;
-					head = nodeToDelete;
-				}
-				else{
-					head = tail = null;
-				}
-			}
-			// If the node is in the middle of the list
-			else if (nodeToDelete!=head && nodeToDelete!=tail){
-				nodeToDelete.next.prev = nodeToDelete.prev;
-				nodeToDelete.prev.next = nodeToDelete.next;
-			}
+			removeByReferance(nodeToDelete);
 			length--;
 		}
 		/**
@@ -275,70 +345,80 @@ public class LinkedList {
 		 */
 		public boolean contains(Object object){
 			// Initialize two pointers: one at the head (start) and one at the tail (end).
-			Node currNodeHead = head;
-			Node currNodeTail = tail;
-			// Loop until the pointers meet or cross, checking from both ends.
-			// int t = 1;
-			while (currNodeHead!=null && currNodeTail!=null){
-				// System.out.println(t++);
-				// Termination condition: pointers have met (for odd-length lists) or are adjacent (for even-length lists).
-				if (currNodeHead==currNodeTail || currNodeHead.next==currNodeTail){
-					// Final check at the meeting point.
-					if(currNodeHead.data.equals(object) || currNodeTail.data.equals(object)){
-						return true;
-					}
-					// If not found at the meeting point, the object is not in the list.
-					return false;
-				}
-				// Check if the data at the current head-side or tail-side pointer matches.
-				else if (currNodeHead.data.equals(object) || currNodeTail.data.equals(object)){
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex){
+				if (start.data.equals(object) || end.data.equals(object)){
 					return true;
 				}
 				// If no match is found, move the pointers one step closer to the center.
-				currNodeHead = currNodeHead.next;
-				currNodeTail = currNodeTail.prev;
+				start = start.next;
+				end = end.prev;
+				startIndex++;
+				endIndex--;
 			}
 			// This fallback is reached if the list is empty or if the loop completes unexpectedly.
 			return false;
+		}
+		/**
+		 * Retrieves the element at the specified index in the list.
+		 * It uses a two-pointer approach, traversing from both head and tail,
+		 * to find the element more efficiently depending on its position.
+		 * @param index The index of the element to retrieve.
+		 * @return The data at the specified index, or {@code null} if the index is out of range.
+		 */
+		public Object get(int index){
+			if (index>=length || index<0){
+				System.out.println("the index out of range!");
+				return null;
+			}
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex){
+				if (startIndex==index) {
+					// Found from the start
+				    return start.data;
+			    }
+			    else if (endIndex==index){
+					// Found from the end
+				    return end.data;
+			    }
+			    start = start.next;
+			    end = end.prev;
+				startIndex++;
+				endIndex--;
+	    	}
+			return null;
 		}
 		/**
 		 * Searches for an object and returns the node containing it.
 		 * @param object The object to search for.
 		 * @return The {@code Node} containing the object, or {@code null} if not found.
 		 */
-		private Node search(Object object){
-			// Initialize two pointers: one at the head (start) and one at the tail (end).
-			Node currNodeHead = head;
-			Node currNodeTail = tail;
-			// Loop until the pointers meet or cross, checking from both ends.
-			// int t = 1;
-			while (currNodeHead!=null && currNodeTail!=null){
-				// System.out.println(t++);
-				// Termination condition: pointers have met (for odd-length lists) or are adjacent (for even-length lists).
-				if (currNodeHead==currNodeTail || currNodeHead.next==currNodeTail){
-					// Final check at the meeting point.
-					if(currNodeHead.data.equals(object)){
-						return currNodeHead;
-					}
-					else if (currNodeTail.data.equals(object)){
-						return currNodeTail;
-					}
-					// If not found at the meeting point, the object is not in the list.
-					return null;
+		public Node find(Object object){
+			Node node = null;
+			Node start = head;
+			Node end = tail;
+			int startIndex = 0;
+			int endIndex = length-1;
+			while (startIndex<=endIndex){
+				if (start.data.equals(object)){
+					node = start;
+					break;
 				}
-				// Check if the data at the current head-side or tail-side pointer matches.
-				else if (currNodeHead.data.equals(object)){
-					return currNodeHead;
+				else if (end.data.equals(object)){
+					node = end;
 				}
-				else if (currNodeTail.data.equals(object)){
-					return currNodeTail;
-				}
-				// If no match is found, move the pointers one step closer to the center.
-				currNodeHead = currNodeHead.next;
-				currNodeTail = currNodeTail.prev;
+				start = start.next;
+				end = end.prev;
+				startIndex++;
+				endIndex--;
 			}
-			// This fallback is reached if the list is empty or if the loop completes unexpectedly.
-			return null;
+			return node;
 		}
 		/**
 		 * Iterates through the list from head to tail, returning the data of one node per call.
@@ -351,7 +431,7 @@ public class LinkedList {
 		 * Modifying the list (e.g., using `add`, `remove`) during traversal can lead
 		 * to unpredictable behavior or `NullPointerException`s, as the internal pointer
 		 * may become invalid.
-		 * This method is not thread-safe.</li>
+		 * This method is not thread-safe.
 		 * @return The data of the current node in the forward traversal, or {@code null} if the end of the list has been reached.
 		 */
 		public Object nextFrontTraversal(){
@@ -441,19 +521,53 @@ public class LinkedList {
             }
             return string;
         }
+		/**
+		 * Checks if the given object is a String or Character that represents a numeric digit.
+		 * @param obj The object to check.
+		 * @return {@code true} if the object is a string or character representing a digit,
+		 *         {@code false} otherwise.
+		 */
+		public boolean isDigit(Object obj){
+            if (obj instanceof String){
+                try{
+                    Integer n =  Integer.valueOf(obj.toString());
+                    if(n.toString().equals(obj)){
+                        return true;
+                    }
+                }
+                catch (NumberFormatException e){
+                    return false;
+                }
+            }
+            else if (obj instanceof Character){
+                try{
+                    Integer n = Integer.valueOf(obj.toString());
+                    Character c = n.toString().toCharArray()[0];
+                    if(c.equals(obj)){
+                        return true;
+                    }
+                }
+                catch (NumberFormatException e){
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 	public static void main(String[] args) {
-		DynamicLinkedList list = new DynamicLinkedList();
-		list.append(0);
-        list.append(5);
-		list.append(1);
-		list.append(2);
+		DynamicLinkedList list = new DynamicLinkedList(0,5,1,2);
+		list.printList();
+		list.printReverseList();
+		System.out.println(list.length); 
+
 		list.append(3);
         list.append(9);
 		list.printList();
+		list.printReverseList();
+		System.out.println(list.length); 
+
 		list.removeByValue(4);
 		list.removeByValue(0);
-
 		list.printList();
 		list.printReverseList();
 		System.out.println(list.length);
@@ -465,7 +579,7 @@ public class LinkedList {
 		System.out.println(list.length);
 		
         list.removeByValue(2);
-
+		list.append(8);
 		list.printList();
 		list.printReverseList();
 		System.out.println(list.length);
@@ -476,8 +590,27 @@ public class LinkedList {
 		list.printReverseList();
 		System.out.println(list.length);
 
+		System.out.println("poped value: "+list.pop(5));
 		System.out.println(list.maxVlueNode().data);
 		System.out.println(list.minVlueNode().data);
+		list.printList();
+		list.printReverseList();
+		System.out.println(list.length);
 
+		System.out.println("8 acures: "+list.count(8));
+		list.update(0, "10");
+		list.printList();
+		list.printReverseList();
+		System.out.println(list.length);
+		System.out.println(list.contains(10));
+
+		list.append(8);
+		list.removeByValue(8);
+		list.printList();
+		list.printReverseList();
+		System.out.println(list.length);
+		System.out.println(list.contains(8));
+		System.out.println("8 acures: "+list.count(8));
+		System.out.println(list.get(6));
 	}
 }
